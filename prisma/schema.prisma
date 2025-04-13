@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id             String           @id @default(cuid())
+  name           String
+  email          String           @unique
+  password       String
+  role           Role             @default(USER)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  participations Participation[]
+}
+
+model Contest {
+  id             String           @id @default(cuid())
+  title          String
+  description    String
+  startDate      DateTime
+  endDate        DateTime
+  difficulty     Difficulty
+  category       String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  participations Participation[]
+}
+
+model Participation {
+  id             String   @id @default(cuid())
+  userId         String
+  contestId      String
+  joinedAt       DateTime @default(now())
+  // New fields for registration form
+  rollNumber     String
+  section        String
+  semester       String
+  contactNumber  String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contest        Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contestId])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Difficulty {
+  Easy
+  Medium
+  Hard
+  Expert
+}
